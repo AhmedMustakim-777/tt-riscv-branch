@@ -1,5 +1,4 @@
 # rv32i RISC-V Register File
-
 ## What it does
 
 Full 32×32-bit RISC-V architectural register file
