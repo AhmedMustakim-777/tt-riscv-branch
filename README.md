@@ -1,45 +1,78 @@
-![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
+# rv32i RISC-V Register File
 
-# ⚠️ This template is old and outdated ⚠️
+## What it does
 
-Please use **[ttsky-verilog-template](https://github.com/TinyTapeout/ttsky-verilog-template)** for new projects.
+Full 32×32-bit RISC-V architectural register file
+with 4 write ports and 2 read ports. This is the
+actual register file extracted from a complete
+rv32imsu RISC-V SoC implemented in Synopsys DC Shell
+and ICC2 on sky130A 130nm PDK for EEE-5390C Full
+Custom VLSI Design at University of Central Florida.
 
-# Tiny Tapeout Verilog Project Template
+This tile works alongside the rv32i ALU tile to
+demonstrate the complete execution stage of the
+RISC-V pipeline.
 
-- [Read the documentation for project](docs/info.md)
+## RISC-V Register File
 
-## What is Tiny Tapeout?
+The RISC-V ISA defines 32 general purpose registers:
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+| Register | ABI Name | Description          |
+|----------|----------|----------------------|
+| x0       | zero     | Always reads as 0    |
+| x1       | ra       | Return address       |
+| x2       | sp       | Stack pointer        |
+| x3       | gp       | Global pointer       |
+| x4       | tp       | Thread pointer       |
+| x5-x7    | t0-t2    | Temporaries          |
+| x8-x9    | s0-s1    | Saved registers      |
+| x10-x17  | a0-a7    | Function arguments   |
+| x18-x27  | s2-s11   | Saved registers      |
+| x28-x31  | t3-t6    | Temporaries          |
 
-To learn more and get started, visit https://tinytapeout.com.
+## Pin Assignment
 
-## Set up your Verilog project
+| Pin | Direction | Function |
+|-----|-----------|----------|
+| ui_in[7:6] | Input | Phase select (00-11) |
+| ui_in[5] | Input | Mode: 1=read 0=write |
+| ui_in[4:0] | Input | Register index (0-31) |
+| ui_in[1:0] | Input | Output byte select |
+| uio_in[7:0] | Input | Data byte to write |
+| uo_out[7:0] | Output | Result byte from read |
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+## How to test
 
-The GitHub action will automatically build the ASIC files using [OpenLane](https://www.zerotoasiccourse.com/terminology/openlane/).
+Write a value to register 1:
+  Cycle 1: ui_in=8'b00_0_00001, uio_in=byte0
+  Cycle 2: ui_in=8'b01_0_00000, uio_in=byte1
+  Cycle 3: ui_in=8'b10_0_00000, uio_in=byte2
+  Cycle 4: ui_in=8'b11_0_00000, uio_in=byte3
 
-## Enable GitHub actions to build the results page
+Read register 1 byte 0:
+  Cycle 1: ui_in=8'b00_1_00001 (select reg 1 read mode)
+  Cycle 2: ui_in=8'b01_0_00_00 (byte_sel=00)
+  Read: uo_out = register[1][7:0]
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+Note: Register x0 always reads as 0 per RISC-V spec.
+Writing to x0 has no effect.
 
-## Resources
+## Design Context
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
+Part of rv32imsu RISC-V SoC at UCF:
+- Complete 32-bit pipeline with M S U privilege modes
+- 10 SRAM macros (6x 2kB + 4x 1kB data/instruction cache)
+- AXI4 interconnect, GPIO, UART, SPI, Timer
+- Physical design: Synopsys ICC2 on sky130A 130nm
+- 29,470 leaf cells, 60ns clock period at SS corner
 
-## What next?
+## Reuse
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
+Copy riscv_regfile.v and tt_um_riscv_regfile.v into
+your project. The register file supports 4 simultaneous
+write ports and 2 read ports for high-performance
+out-of-order execution pipelines.
+
+## External hardware
+
+None required.
