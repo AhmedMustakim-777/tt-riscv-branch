@@ -1,12 +1,9 @@
-# Makefile for rv32i RISC-V Register File
-
 SIM ?= icarus
 FST ?= -fst
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
 
-PROJECT_SOURCES = tt_um_riscv_regfile.v \
-                  riscv_regfile.v
+PROJECT_SOURCES = tt_um_riscv_branch.v
 
 ifneq ($(GATES),yes)
 SIM_BUILD                    = sim_build/rtl
@@ -25,7 +22,6 @@ endif
 
 COMPILE_ARGS    += -I$(SRC_DIR)
 VERILOG_SOURCES += $(PWD)/tb.v
-TOPLEVEL         = tt_um_riscv_regfile
+TOPLEVEL         = tt_um_riscv_branch
 COCOTB_TEST_MODULES = test
 include $(shell cocotb-config --makefiles)/Makefile.sim
-
