@@ -38,6 +38,9 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
 // SUCH DAMAGE.
 //-----------------------------------------------------------------
+/* verilator lint_off PINCONNECTEMPTY */
+/* verilator lint_off UNDRIVEN */
+/* verilator lint_off UNUSEDSIGNAL */
 
 module riscv_regfile
 (
