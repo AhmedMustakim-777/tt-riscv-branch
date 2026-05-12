@@ -3,7 +3,7 @@
 [![Test](../../actions/workflows/test.yaml/badge.svg)](../../actions/workflows/test.yaml)
 [![FPGA](../../actions/workflows/fpga.yaml/badge.svg)](../../actions/workflows/fpga.yaml)
 
-# rv32i RISC-V Branch Condition Unit
+# (IEEE) rv32i RISC-V Branch Condition Unit
 
 ## What it does
 
